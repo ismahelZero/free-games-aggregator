@@ -1,0 +1,22 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Offer {
+  id             String   @id @default(uuid())
+  title          String
+  thumbnailUrl   String
+  platform       String
+  originalPrice  Float
+  url            String
+  
+  startDate      DateTime 
+  endDate        DateTime 
+  
+  isActive       Boolean  @default(true) 
+  createdAt      DateTime @default(now())
+}
