@@ -1,4 +1,5 @@
-import { prisma } from '../lib/prisma';
+import { prisma } from '@/lib/prisma';
+import { Offer } from '@prisma/client'
 
 // Notice the 'async' here - Next.js Server Components can await database calls!
 export default async function Home() {
@@ -26,7 +27,7 @@ export default async function Home() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
 
                     {/* Map through the database results */}
-                    {freeGames.map((game) => (
+                    {freeGames.map((game:Offer) => (
                         <div key={game.id} className="bg-gray-800 rounded-xl overflow-hidden shadow-2xl border border-gray-700 flex flex-col hover:border-blue-500 transition-colors duration-300">
 
                             {/* Game Thumbnail */}
