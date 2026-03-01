@@ -1,8 +1,14 @@
-import { NextResponse } from 'next/server';
+import {NextResponse} from 'next/server';
 import * as cheerio from 'cheerio';
-import { prisma } from '@/lib/prisma';
+import {prisma} from '@/lib/prisma';
 
 export async function GET(request: Request) {
+
+    const authHeader = request.headers.get('authorization');
+    if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+        return NextResponse.json({error: 'Unauthorized'}, {status: 401});
+    }
+
     try {
         // 1. Fetch with a fake Chrome browser header to bypass basic bot protection
         const response = await fetch('https://freebies.indiegala.com/', {
@@ -40,7 +46,7 @@ export async function GET(request: Request) {
 
                 // 5. Check the database to prevent duplicates
                 const existingGame = await prisma.offer.findFirst({
-                    where: { title: title }
+                    where: {title: title}
                 });
 
                 if (!existingGame) {
@@ -62,10 +68,10 @@ export async function GET(request: Request) {
             }
         }
 
-        return NextResponse.json({ success: true, newGamesScraped: addedCount });
+        return NextResponse.json({success: true, newGamesScraped: addedCount});
 
     } catch (error) {
         console.error("IndieGala scraper error:", error);
-        return NextResponse.json({ success: false, error: "Failed to scrape IndieGala" }, { status: 500 });
+        return NextResponse.json({success: false, error: "Failed to scrape IndieGala"}, {status: 500});
     }
 }

@@ -1,10 +1,15 @@
-import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import {NextResponse} from 'next/server';
+import {prisma} from '@/lib/prisma';
 
 export async function GET(request: Request) {
+    const authHeader = request.headers.get('authorization');
+    if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+        return NextResponse.json({error: 'Unauthorized'}, {status: 401});
+    }
+
     try {
         // 1. Fetch the first 100 discounted games from GOG's official catalog API
-            const response = await fetch('https://catalog.gog.com/v1/catalog?limit=100&price=discounted');
+        const response = await fetch('https://catalog.gog.com/v1/catalog?limit=100&price=discounted');
         const json = await response.json();
 
         // 2. Filter the results to ONLY include games with a 100% discount
@@ -30,7 +35,7 @@ export async function GET(request: Request) {
             if (title && gameUrl) {
                 // Check database to prevent duplicates
                 const existingGame = await prisma.offer.findFirst({
-                    where: { title: title }
+                    where: {title: title}
                 });
 
                 if (!existingGame) {
@@ -53,10 +58,10 @@ export async function GET(request: Request) {
             }
         }
 
-        return NextResponse.json({ success: true, newGamesScraped: addedCount });
+        return NextResponse.json({success: true, newGamesScraped: addedCount});
 
     } catch (error) {
         console.error("GOG scraper error:", error);
-        return NextResponse.json({ success: false, error: "Failed to scrape GOG" }, { status: 500 });
+        return NextResponse.json({success: false, error: "Failed to scrape GOG"}, {status: 500});
     }
 }

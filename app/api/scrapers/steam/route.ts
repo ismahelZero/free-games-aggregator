@@ -1,12 +1,12 @@
-import { NextResponse } from 'next/server';
+import {NextResponse} from 'next/server';
 import * as cheerio from 'cheerio';
-import { prisma } from '@/lib/prisma';
+import {prisma} from '@/lib/prisma';
 
 export async function GET(request: Request) {
 
     const authHeader = request.headers.get('authorization');
     if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        return NextResponse.json({error: 'Unauthorized'}, {status: 401});
     }
 
     try {
@@ -56,7 +56,7 @@ export async function GET(request: Request) {
 
             if (title && gameUrl) {
                 const existingGame = await prisma.offer.findFirst({
-                    where: { title: title }
+                    where: {title: title}
                 });
 
                 if (!existingGame) {
@@ -77,10 +77,10 @@ export async function GET(request: Request) {
             }
         }
 
-        return NextResponse.json({ success: true, newGamesScraped: addedCount });
+        return NextResponse.json({success: true, newGamesScraped: addedCount});
 
     } catch (error) {
         console.error("Steam scraper error:", error);
-        return NextResponse.json({ success: false, error: "Failed to scrape Steam" }, { status: 500 });
+        return NextResponse.json({success: false, error: "Failed to scrape Steam"}, {status: 500});
     }
 }
