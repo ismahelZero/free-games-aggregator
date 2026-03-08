@@ -30,8 +30,7 @@ export default async function Home() {
             </header>
 
             {/* Bento Grid */}
-            <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 lg:grid-cols-12 gap-6 auto-rows-[200px]">
-
+            <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 lg:grid-cols-12 gap-6 auto-rows-[280px]">
                 {/* 1. Featured Big Tile */}
                 {activeGames[0] && (
                     <div className="md:col-span-4 lg:col-span-8 lg:row-span-2">
