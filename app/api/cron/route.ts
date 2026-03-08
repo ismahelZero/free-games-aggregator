@@ -9,8 +9,9 @@ export async function GET(request: Request) {
     }
 
     const host = request.headers.get('host');
-    const protocol = host?.includes('localhost') ? 'http' : 'https';
-    const baseUrl = `${protocol}://${host}`;
+    const isLocal = host?.includes('localhost');
+    const baseUrl = isLocal ? `http://${host}` : 'https://free.myfps.app';
+
     const platforms = ['epic', 'steam', 'indiegala', 'gog'];
 
     try {
@@ -21,32 +22,38 @@ export async function GET(request: Request) {
                     headers: {'Authorization': `Bearer ${process.env.CRON_SECRET}`},
                     cache: 'no-store'
                 });
-                return {platform, status: res.ok ? 'Synced' : 'Failed'};
+
+                // Log for Vercel debugging
+                console.log(`Triggered ${platform} on ${baseUrl}: ${res.status}`);
+
+                return {platform, status: res.ok ? 'Synced' : `Failed (${res.status})`};
             })
         );
 
-        // 2. AUTO-CLEANUP: Deactivate games past their end date
+        // 2. AUTO-CLEANUP
         const now = new Date();
         const archived = await prisma.offer.updateMany({
             where: {
                 isActive: true,
-                endDate: {lt: now} // If end date is less than (before) right now
+                endDate: {lt: now}
             },
             data: {isActive: false}
         });
 
         console.log(`Archived ${archived.count} expired games.`);
 
-        // 3. CACHE INVALIDATION: Tell Next.js to refresh the UI
+        // 3. CACHE INVALIDATION
         revalidatePath('/');
         revalidatePath('/graveyard');
 
         return NextResponse.json({
             success: true,
             scrapers: scraperResults,
-            archivedCount: archived.count
+            archivedCount: archived.count,
+            triggeredOn: baseUrl
         });
     } catch (error: any) {
+        console.error("CRON MASTER ERROR:", error.message);
         return NextResponse.json({success: false, error: error.message}, {status: 500});
     }
 }
