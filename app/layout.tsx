@@ -21,13 +21,22 @@ export const metadata: Metadata = {
     description: "Secure the bag. Play for free. LootVault tracks every active free game giveaway on Epic, Steam, GOG, and IndieGala.",
     keywords: ["free games", "pc games", "epic games giveaway", "steam free games", "lootvault"],
     openGraph: {
-        title: "LootVault - The Ultimate Free Games Tracker",
-        description: "Never miss a free game again. Real-time sync with Epic, Steam, and GOG.",
+        title: "LootVault",
+        description: "Never miss a free game giveaway again.",
         url: "https://free.myfps.app",
         siteName: "LootVault",
-        images: [{url: "/og-image.jpg"}],
+        locale: "en_US",
         type: "website",
     },
+    twitter: {
+        card: "summary_large_image",
+        title: "LootVault | Free PC Games",
+        description: "Secure the bag. Play for free.",
+    },
+    robots: {
+        index: true,
+        follow: true,
+    }
 };
 
 // This is the missing part that Next.js is asking for
