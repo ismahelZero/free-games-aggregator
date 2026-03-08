@@ -10,6 +10,7 @@ export default function GameCard({game, isFeatured = false}: { game: any, isFeat
 
     const handleCopy = (e: React.MouseEvent) => {
         e.preventDefault();
+        e.stopPropagation();
         navigator.clipboard.writeText(game.url);
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
@@ -17,6 +18,7 @@ export default function GameCard({game, isFeatured = false}: { game: any, isFeat
 
     const handleShare = async (e: React.MouseEvent) => {
         e.preventDefault();
+        e.stopPropagation();
         if (navigator.share) {
             try {
                 await navigator.share({
@@ -28,7 +30,7 @@ export default function GameCard({game, isFeatured = false}: { game: any, isFeat
                 console.log("Share failed", err);
             }
         } else {
-            handleCopy(e); // Fallback to copy if sharing isn't supported
+            handleCopy(e);
         }
     };
 
@@ -76,7 +78,7 @@ export default function GameCard({game, isFeatured = false}: { game: any, isFeat
                     <h2 className={`${isFeatured ? 'text-xl sm:text-2xl md:text-3xl' : 'text-lg'} font-bold leading-tight line-clamp-2`}>{game.title}</h2>
 
                     {/* ACTION BUTTONS (#5) */}
-                    <div className="flex gap-2 mt-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="flex gap-2 mt-4 lg:opacity-0 group-hover:opacity-100 transition-opacity">
                         <button onClick={handleShare}
                                 className="p-4 lg:p-2 bg-slate-800/80 rounded-lg hover:bg-emerald-500 hover:text-slate-900 transition-colors">
                             <Share2 size={16}/>

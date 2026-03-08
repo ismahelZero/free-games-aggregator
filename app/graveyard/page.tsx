@@ -1,7 +1,5 @@
 import {prisma} from '@/lib/prisma';
 import GameCard from '../components/GameCard';
-import {LootVaultLogo} from '../components/LootValueLogo';
-import Link from 'next/link';
 
 export const revalidate = 0; // Ensure we see the latest archived games immediately
 
@@ -14,20 +12,6 @@ export default async function GraveyardPage() {
 
     return (
         <main className="min-h-screen bg-[#0f172a] text-slate-100 p-6 md:p-12">
-            {/* Header */}
-            <header className="flex justify-between items-center mb-12 max-w-7xl mx-auto">
-                <Link href="/" className="flex items-center gap-3 group">
-                    <LootVaultLogo className="w-12 h-12"/>
-                    <h1 className="text-3xl font-bold tracking-tighter">
-                        LOOT<span className="text-slate-500 group-hover:text-emerald-500 transition-colors">VAULT</span>
-                    </h1>
-                </Link>
-                <nav className="flex gap-8 font-medium text-slate-400">
-                    <Link href="/" className="hover:text-white transition-colors">Active Loot</Link>
-                    <Link href="/graveyard" className="text-emerald-500 border-b-2 border-emerald-500 pb-1">The
-                        Graveyard</Link>
-                </nav>
-            </header>
 
             <div className="max-w-7xl mx-auto">
                 <div className="mb-12">
@@ -52,10 +36,6 @@ export default async function GraveyardPage() {
                     </div>
                 )}
             </div>
-
-            <footer className="mt-24 text-center text-slate-600 text-sm">
-                <p>© 2026 LootVault Graveyard | Data archived via automated scrapers</p>
-            </footer>
         </main>
     );
 }
