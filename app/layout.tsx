@@ -1,7 +1,19 @@
 import type {Metadata} from "next";
+import {Geist, Geist_Mono} from "next/font/google";
 import "./globals.css"; // Ensure your global styles are imported
 
+const geistSans = Geist({
+    variable: "--font-geist-sans",
+    subsets: ["latin"],
+});
+
+const geistMono = Geist_Mono({
+    variable: "--font-geist-mono",
+    subsets: ["latin"],
+});
+
 export const metadata: Metadata = {
+    metadataBase: new URL('https://free.myfps.app'),
     title: {
         default: "LootVault | Free PC Games Tracker",
         template: "%s | LootVault"
@@ -21,12 +33,14 @@ export const metadata: Metadata = {
 // This is the missing part that Next.js is asking for
 export default function RootLayout({
                                        children,
-                                   }: {
+                                   }: Readonly<{
     children: React.ReactNode;
-}) {
+}>) {
     return (
         <html lang="en">
-        <body className="antialiased">
+        <body
+            className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        >
         {children}
         </body>
         </html>
