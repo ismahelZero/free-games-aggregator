@@ -2,6 +2,7 @@ import type {Metadata} from "next";
 import "./globals.css";
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
+import Script from "next/script";
 
 export const metadata: Metadata = {
     metadataBase: new URL('https://free.myfps.app'),
@@ -31,9 +32,18 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({children}: { children: React.ReactNode }) {
-    
+
     return (
         <html lang="en">
+        <head>
+            {/* Google AdSense Script */}
+            <Script
+                async
+                src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5009121739741215"
+                crossOrigin="anonymous"
+                strategy="afterInteractive"
+            />
+        </head>
         <body
             className={`antialiased  flex flex-col min-h-screen`}>
         <Navbar/>
