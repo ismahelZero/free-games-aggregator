@@ -1,32 +1,39 @@
 import {NextResponse} from 'next/server';
 
 export async function GET(request: Request) {
-    // 1. Check if the person calling THIS master cron has the secret
     const authHeader = request.headers.get('authorization');
     if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
         return NextResponse.json({error: 'Unauthorized'}, {status: 401});
     }
 
-    // 2. Use your new subdomain for the base URL
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://free.myfps.app';
+    // 1. Get the current host dynamically from the request itself
+    const host = request.headers.get('host');
+    const protocol = host?.includes('localhost') ? 'http' : 'https';
+    const baseUrl = `${protocol}://${host}`;
+
     const platforms = ['epic', 'steam', 'indiegala', 'gog'];
 
     try {
         const results = await Promise.all(
             platforms.map(async (platform) => {
+                // 2. Use the dynamic baseUrl
                 const res = await fetch(`${baseUrl}/api/scrapers/${platform}`, {
                     headers: {
-                        // 3. THIS IS THE KEY: Passing the secret to the scrapers
                         'Authorization': `Bearer ${process.env.CRON_SECRET}`
                     },
                     cache: 'no-store'
                 });
-                return {platform, status: res.ok ? 'Success' : 'Failed'};
+
+                // 3. Log the status for Vercel logs so you can see which one fails
+                console.log(`Scraping ${platform}: ${res.status}`);
+
+                return {platform, status: res.ok ? 'Success' : `Failed (${res.status})`};
             })
         );
 
         return NextResponse.json({success: true, results});
-    } catch (error) {
-        return NextResponse.json({success: false, error: "Cron execution failed"}, {status: 500});
+    } catch (error: any) {
+        console.error("CRON ERROR:", error.message);
+        return NextResponse.json({success: false, error: error.message}, {status: 500});
     }
 }
