@@ -12,11 +12,12 @@ model Offer {
   thumbnailUrl   String
   platform       String
   originalPrice  Float
-  url            String
-  
-  startDate      DateTime 
-  endDate        DateTime 
+  url            String   @unique
+
+  startDate     DateTime @default(now())
+  endDate       DateTime?
   
   isActive       Boolean  @default(true) 
   createdAt      DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 }
