@@ -70,19 +70,19 @@ export default function GameCard({game, isFeatured = false}: { game: any, isFeat
 
                 <div className="absolute inset-0 bg-gradient-to-t from-[#0f172a] via-[#0f172a]/40 to-transparent"/>
 
-                <div className="absolute bottom-0 p-6 z-10 w-full">
+                <div className="absolute bottom-0 p-4 sm:p-6 z-10 w-full">
                     <span
                         className="px-2 py-1 rounded-md bg-emerald-500/10 text-emerald-400 text-[10px] font-black uppercase tracking-widest border border-emerald-500/20 mb-3 inline-block">{game.platform}</span>
-                    <h2 className={`${isFeatured ? 'text-2xl md:text-3xl' : 'text-lg'} font-bold leading-tight line-clamp-2`}>{game.title}</h2>
+                    <h2 className={`${isFeatured ? 'text-xl sm:text-2xl md:text-3xl' : 'text-lg'} font-bold leading-tight line-clamp-2`}>{game.title}</h2>
 
                     {/* ACTION BUTTONS (#5) */}
                     <div className="flex gap-2 mt-4 opacity-0 group-hover:opacity-100 transition-opacity">
                         <button onClick={handleShare}
-                                className="p-2 bg-slate-800/80 rounded-lg hover:bg-emerald-500 hover:text-slate-900 transition-colors">
+                                className="p-4 lg:p-2 bg-slate-800/80 rounded-lg hover:bg-emerald-500 hover:text-slate-900 transition-colors">
                             <Share2 size={16}/>
                         </button>
                         <button onClick={handleCopy}
-                                className="p-2 bg-slate-800/80 rounded-lg hover:bg-emerald-500 hover:text-slate-900 transition-colors">
+                                className="p-4 lg:p-2 bg-slate-800/80 rounded-lg hover:bg-emerald-500 hover:text-slate-900 transition-colors">
                             {copied ? <Check size={16}/> : <LinkIcon size={16}/>}
                         </button>
                     </div>
