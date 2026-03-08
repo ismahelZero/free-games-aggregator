@@ -1,8 +1,10 @@
 import {prisma} from '@/lib/prisma';
-import {LootVaultLogo} from "@/app/components/LootValueLogo";
-import Link from "next/link";
-import GameCard from "@/app/components/GameCard";
-// ... (Logo and Link imports)
+import GameCard from './components/GameCard';
+import {LootVaultLogo} from './components/LootValueLogo';
+import Link from 'next/link';
+import {NewsletterSignup} from './components/NewsletterSignup';
+
+export const revalidate = 0;
 
 export default async function Home() {
     const activeGames = await prisma.offer.findMany({
@@ -10,10 +12,10 @@ export default async function Home() {
         orderBy: {createdAt: 'desc'}
     });
 
-    // Get the latest update time from any offer
-    const lastUpdate = activeGames.length > 0
-        ? new Date(Math.max(...activeGames.map(g => g.updatedAt.getTime())))
-        : null;
+    const latestSync = await prisma.offer.findFirst({
+        orderBy: {updatedAt: 'desc'},
+        select: {updatedAt: true}
+    });
 
     return (
         <main className="min-h-screen bg-[#0f172a] text-slate-100 p-6 md:p-12">
@@ -63,24 +65,19 @@ export default async function Home() {
                 ))}
             </div>
 
-            {/* Empty State */}
-            {activeGames.length === 0 && (
-                <div
-                    className="text-center mt-10 py-20 bg-slate-800/20 rounded-3xl border border-dashed border-slate-700 max-w-7xl mx-auto">
-                    <h3 className="text-2xl text-slate-500 font-bold">The vault is currently locked. Check back
-                        soon!</h3>
-                </div>)}
+            {/* Newsletter Section (#2) */}
+            <NewsletterSignup/>
 
-            {/* Last Synced Footer */}
+            {/* Sync Badge Footer */}
             <footer className="mt-20 flex flex-col items-center justify-center gap-4 text-slate-500 text-sm">
-                {lastUpdate && (
+                {latestSync && (
                     <div
                         className="flex items-center gap-2 px-4 py-2 bg-slate-800/30 rounded-full border border-slate-800">
                         <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                        Last Vault Sync: {lastUpdate.toLocaleString()}
+                        Last Vault Sync: {latestSync.updatedAt.toLocaleString()}
                     </div>
                 )}
-                <p>© 2026 LootVault. All rights reserved.</p>
+                <p>© 2026 LootVault. Secure the bag. Play for free.</p>
             </footer>
         </main>
     );
