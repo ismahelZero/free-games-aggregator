@@ -1,12 +1,11 @@
 "use client";
-import {useEffect, useRef, useState} from 'react';
-import {gsap} from 'gsap';
+import React, {useState} from 'react';
 import Image from 'next/image';
-import {Check, Link as LinkIcon, Share2} from 'lucide-react';
+import {Copy, PlayIcon, PlaySquare, Share2, X} from 'lucide-react';
 
 export default function GameCard({game, isFeatured = false}: { game: any, isFeatured?: boolean }) {
-    const cardRef = useRef(null);
     const [copied, setCopied] = useState(false);
+    const [showModal, setShowModal] = useState(false);
 
     const handleCopy = (e: React.MouseEvent) => {
         e.preventDefault();
@@ -21,75 +20,119 @@ export default function GameCard({game, isFeatured = false}: { game: any, isFeat
         e.stopPropagation();
         if (navigator.share) {
             try {
-                await navigator.share({
-                    title: `Free Game: ${game.title}`,
-                    text: `Secure the bag! ${game.title} is currently free on ${game.platform}.`,
-                    url: game.url,
-                });
+                await navigator.share({title: `Free Game: ${game.title}`, url: game.url});
             } catch (err) {
-                console.log("Share failed", err);
+                console.log(err);
             }
         } else {
             handleCopy(e);
         }
     };
 
-    useEffect(() => {
-        const ctx = gsap.context(() => {
-            gsap.from(cardRef.current, {
-                opacity: 0,
-                y: 15,
-                duration: 0.6,
-                ease: "power2.out",
-                delay: Math.random() * 0.2
-            });
-        }, cardRef);
-        return () => ctx.revert();
-    }, []);
-
     return (
-        <div ref={cardRef} className="h-full relative group">
-            {/* SAVINGS BADGE (#4) */}
-            {game.originalPrice > 0 && (
-                <div
-                    className="absolute -top-2 -right-2 z-30 bg-emerald-500 text-slate-900 font-black text-xs px-3 py-1.5 rounded-full shadow-[0_0_15px_rgba(16,185,129,0.5)] transform -rotate-3 group-hover:rotate-0 transition-transform">
-                    SAVE ${game.originalPrice.toFixed(2)}
-                </div>
-            )}
-
-            <a href={game.url} target="_blank"
-               className="relative block h-full rounded-3xl overflow-hidden bg-slate-900 border border-slate-800 hover:border-emerald-500/50 transition-all duration-500 shadow-2xl">
-                <div className="relative w-full h-full min-h-[250px]">
+        <>
+            {/* The Game Card */}
+            <div
+                onClick={() => setShowModal(true)}
+                className="group relative w-full h-full bg-slate-900 rounded-3xl overflow-hidden border border-slate-800 hover:border-emerald-500/50 transition-all duration-300 cursor-pointer flex flex-col"
+            >
+                <div className="relative w-full h-48 sm:h-full flex-grow overflow-hidden bg-slate-800">
                     <Image
-                        src={game.thumbnailUrl}
+                        src={game.thumbnailUrl || '/placeholder.jpg'}
                         alt={game.title}
                         fill
-                        priority={isFeatured} // Loads featured images instantly
+                        className="object-cover group-hover:scale-105 transition-transform duration-500"
                         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                        className="opacity-50 group-hover:opacity-80 transition-all duration-700"
+                        priority={isFeatured}
                     />
-                </div>
-
-                <div className="absolute inset-0 bg-gradient-to-t from-[#0f172a] via-[#0f172a]/40 to-transparent"/>
-
-                <div className="absolute bottom-0 p-4 sm:p-6 z-10 w-full">
-                    <span
-                        className="px-2 py-1 rounded-md bg-emerald-500/10 text-emerald-400 text-[10px] font-black uppercase tracking-widest border border-emerald-500/20 mb-3 inline-block">{game.platform}</span>
-                    <h2 className={`${isFeatured ? 'text-xl sm:text-2xl md:text-3xl' : 'text-lg'} font-bold leading-tight line-clamp-2`}>{game.title}</h2>
-
-                    {/* ACTION BUTTONS (#5) */}
-                    <div className="flex gap-2 mt-4 lg:opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button onClick={handleShare}
-                                className="p-4 lg:p-2 bg-slate-800/80 rounded-lg hover:bg-emerald-500 hover:text-slate-900 transition-colors">
-                            <Share2 size={16}/>
-                        </button>
-                        <button onClick={handleCopy}
-                                className="p-4 lg:p-2 bg-slate-800/80 rounded-lg hover:bg-emerald-500 hover:text-slate-900 transition-colors">
-                            {copied ? <Check size={16}/> : <LinkIcon size={16}/>}
-                        </button>
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/20 to-transparent"/>
+                    <div
+                        className="absolute top-4 left-4 bg-emerald-500 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider shadow-lg">
+                        {game.platform}
+                    </div>
+                    {/* Play Icon Overlay on Hover */}
+                    <div
+                        className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/40">
+                        <PlaySquare size={48} className="text-white drop-shadow-lg"/>
                     </div>
                 </div>
-            </a>
-        </div>
+
+                <div className="relative p-5 sm:p-6 flex flex-col justify-end bg-slate-900">
+                    <h3 className="text-xl sm:text-2xl font-bold text-white mb-2 line-clamp-1">{game.title}</h3>
+                    <div className="flex gap-2">
+                        <button onClick={handleShare}
+                                className="p-2 sm:p-3 rounded-xl bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white transition-colors z-10">
+                            <Share2 size={20}/>
+                        </button>
+                        <button onClick={handleCopy}
+                                className="p-2 sm:p-3 rounded-xl bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white transition-colors relative z-10">
+                            <Copy size={20}/>
+                            {copied && <span
+                                className="absolute -top-8 left-1/2 -translate-x-1/2 text-xs bg-emerald-500 text-white px-2 py-1 rounded">Copied!</span>}
+                        </button>
+                        <a href={game.url} target="_blank" rel="noopener noreferrer"
+                           onClick={(e) => e.stopPropagation()}
+                           className="flex-1 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold rounded-xl flex items-center justify-center px-4 transition-colors z-10">
+                            Get Game
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            {/* Quick Look Modal */}
+            {showModal && (
+                <div
+                    className="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 md:p-8"
+                    onClick={() => setShowModal(false)}
+                >
+                    <div
+                        className="bg-[#0f172a] rounded-3xl w-full max-w-4xl overflow-hidden border border-slate-700 shadow-2xl flex flex-col"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <div className="p-4 md:p-6 flex justify-between items-center border-b border-slate-800">
+                            <h3 className="text-xl md:text-2xl font-bold text-white pr-4">{game.title}</h3>
+                            <button onClick={() => setShowModal(false)}
+                                    className="text-slate-400 hover:text-white bg-slate-800 p-2 rounded-full transition">
+                                <X size={24}/>
+                            </button>
+                        </div>
+
+                        {/* 100% Reliable YouTube Search Link styled as a Video Player */}
+                        <a
+                            href={`https://www.youtube.com/results?search_query=${encodeURIComponent(game.title + ' gameplay trailer')}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="group relative aspect-video w-full bg-slate-900 flex items-center justify-center overflow-hidden"
+                        >
+                            {/* Blurry background version of the game image for cinematic effect */}
+                            <Image
+                                src={game.thumbnailUrl || '/placeholder.jpg'}
+                                alt={game.title}
+                                fill
+                                className="object-cover opacity-30 blur-sm group-hover:opacity-40 transition-opacity"
+                            />
+                            <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors"/>
+
+                            <div
+                                className="relative z-10 flex flex-col items-center gap-4 transition-transform group-hover:scale-110">
+                                <div
+                                    className="bg-[#ff0000] text-white rounded-2xl p-4 shadow-[0_0_30px_rgba(255,0,0,0.6)]">
+                                    <PlayIcon size={48} className="fill-current"/>
+                                </div>
+                                <span
+                                    className="font-bold text-xl text-white drop-shadow-md">Watch Trailer on YouTube</span>
+                            </div>
+                        </a>
+
+                        <div className="p-4 md:p-6 flex justify-end gap-4 bg-slate-900 border-t border-slate-800">
+                            <a href={game.url} target="_blank" rel="noopener noreferrer"
+                               className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold px-8 py-3 rounded-xl transition-colors text-lg">
+                                Secure the Loot on {game.platform}
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            )}
+        </>
     );
 }
