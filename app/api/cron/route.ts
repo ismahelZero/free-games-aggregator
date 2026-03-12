@@ -7,6 +7,10 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function GET(request: Request) {
     const authHeader = request.headers.get('authorization');
+
+    console.log("INCOMING BOT HEADER:", authHeader);
+    console.log("EXPECTED SECRET:", `Bearer ${process.env.CRON_SECRET}`);
+    
     if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
         return NextResponse.json({error: 'Unauthorized'}, {status: 401});
     }
