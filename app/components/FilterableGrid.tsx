@@ -38,7 +38,7 @@ export default function FilterableGrid({ games }: { games: any[] }) {
                     filteredGames.map((game, index) => (
                         <React.Fragment key={game.id}>
                             <div
-                                className={`${index === 0 && activeFilter === 'All' ? 'sm:col-span-2 lg:col-span-8 lg:row-span-2 h-[350px] sm:h-auto' : 'col-span-1 lg:col-span-4 lg:row-span-1'}`}
+                                className={`${index === 0 && activeFilter === 'All' ? 'sm:col-span-2 lg:col-span-8 lg:row-span-2 h-[250px] sm:h-auto' : 'col-span-1 lg:col-span-4 lg:row-span-1'}`}
                             >
                                 <GameCard
                                     game={game}

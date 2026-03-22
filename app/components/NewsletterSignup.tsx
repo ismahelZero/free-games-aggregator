@@ -18,7 +18,7 @@ export function NewsletterSignup() {
     }
 
     return (
-        <section className="mt-24 max-w-2xl mx-auto text-center bg-slate-900/50 border border-slate-800 rounded-3xl p-12">
+        <section className="mt-10 max-w-2xl mx-auto text-center bg-slate-900/50 border border-slate-800 rounded-3xl p-12">
             <h3 className="text-3xl font-bold mb-4">Never Miss a Drop</h3>
             <p className="text-slate-400 mb-8 text-lg">
                 Join the inner circle. Get an email the second we find new free games.
