@@ -1,58 +1,64 @@
-import {NextResponse} from 'next/server';
-import * as cheerio from 'cheerio';
-import {prisma} from '@/lib/prisma';
+import { NextResponse } from 'next/server'
+import * as cheerio from 'cheerio'
+import { prisma } from '@/lib/prisma'
 
 export async function GET(request: Request) {
-    const authHeader = request.headers.get('authorization');
+    const authHeader = request.headers.get('authorization')
     if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-        return NextResponse.json({error: 'Unauthorized'}, {status: 401});
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     try {
-        const response = await fetch('https://store.steampowered.com/search/?maxprice=free&category1=998&specials=1', {
-            headers: {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-                'Cookie': 'birthtime=283993201; lastagecheckage=1-January-1979; wants_mature_content=1'
+        const response = await fetch(
+            'https://store.steampowered.com/search/?maxprice=free&category1=998&specials=1',
+            {
+                headers: {
+                    'User-Agent':
+                        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                    Cookie: 'birthtime=283993201; lastagecheckage=1-January-1979; wants_mature_content=1'
+                }
             }
-        });
+        )
 
-        const html = await response.text();
-        const $ = cheerio.load(html);
-        let addedCount = 0;
-        const scrapedUrls = [];
+        const html = await response.text()
+        const $ = cheerio.load(html)
+        let addedCount = 0
+        const scrapedUrls = []
 
-        const gameRows = $('#search_resultsRows a.search_result_row').toArray();
+        const gameRows = $('#search_resultsRows a.search_result_row').toArray()
 
         for (const row of gameRows) {
-            const title = $(row).find('.title').text().trim();
-            const rawUrl = $(row).attr('href') || '';
-            const gameUrl = rawUrl.split('?')[0]; // Clean URL for unique identification
-            const imageUrl = $(row).find('.search_capsule img').attr('src') || '';
+            const title = $(row).find('.title').text().trim()
+            const rawUrl = $(row).attr('href') || ''
+            const gameUrl = rawUrl.split('?')[0] // Clean URL for unique identification
+            const imageUrl = $(row).find('.search_capsule img').attr('src') || ''
 
-            let originalPrice = 0;
-            const appIdMatch = gameUrl.match(/\/app\/(\d+)/);
+            let originalPrice = 0
+            const appIdMatch = gameUrl.match(/\/app\/(\d+)/)
 
             if (appIdMatch && appIdMatch[1]) {
-                const appId = appIdMatch[1];
+                const appId = appIdMatch[1]
                 try {
-                    const priceResponse = await fetch(`https://store.steampowered.com/api/appdetails?appids=${appId}`);
-                    const priceJson = await priceResponse.json();
+                    const priceResponse = await fetch(
+                        `https://store.steampowered.com/api/appdetails?appids=${appId}`
+                    )
+                    const priceJson = await priceResponse.json()
                     if (priceJson[appId]?.success && priceJson[appId]?.data?.price_overview) {
-                        originalPrice = priceJson[appId].data.price_overview.initial / 100;
+                        originalPrice = priceJson[appId].data.price_overview.initial / 100
                     }
                 } catch (err) {
-                    console.log("Price fetch failed for " + appId);
+                    console.log('Price fetch failed for ' + appId)
                 }
             }
 
             if (title && gameUrl) {
                 scrapedUrls.push(gameUrl)
                 await prisma.offer.upsert({
-                    where: {url: gameUrl},
+                    where: { url: gameUrl },
                     update: {
                         isActive: true,
                         thumbnailUrl: imageUrl,
-                        endDate: new Date(new Date().setDate(new Date().getDate() + 7)),
+                        endDate: new Date(new Date().setDate(new Date().getDate() + 7))
                     },
                     create: {
                         title: title,
@@ -62,10 +68,10 @@ export async function GET(request: Request) {
                         url: gameUrl,
                         startDate: new Date(),
                         endDate: new Date(new Date().setDate(new Date().getDate() + 7)),
-                        isActive: true,
+                        isActive: true
                     }
-                });
-                addedCount++;
+                })
+                addedCount++
             }
         }
 
@@ -73,14 +79,17 @@ export async function GET(request: Request) {
             where: {
                 platform: 'Steam',
                 isActive: true,
-                url: {notIn: scrapedUrls}
+                url: { notIn: scrapedUrls }
             },
-            data: {isActive: false}
+            data: { isActive: false }
         })
 
-        return NextResponse.json({success: true, gamesProcessed: addedCount});
+        return NextResponse.json({ success: true, gamesProcessed: addedCount })
     } catch (error) {
-        console.error("Steam scraper error:", error);
-        return NextResponse.json({success: false, error: "Failed to scrape Steam"}, {status: 500});
+        console.error('Steam scraper error:', error)
+        return NextResponse.json(
+            { success: false, error: 'Failed to scrape Steam' },
+            { status: 500 }
+        )
     }
 }

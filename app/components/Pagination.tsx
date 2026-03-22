@@ -1,7 +1,13 @@
-import Link from 'next/link';
+import Link from 'next/link'
 
-export default function Pagination({currentPage, totalPages}: { currentPage: number, totalPages: number }) {
-    if (totalPages <= 1) return null;
+export default function Pagination({
+    currentPage,
+    totalPages
+}: {
+    currentPage: number
+    totalPages: number
+}) {
+    if (totalPages <= 1) return null
 
     return (
         <div className="flex justify-center items-center gap-4 mt-16">
@@ -35,5 +41,5 @@ export default function Pagination({currentPage, totalPages}: { currentPage: num
                 </span>
             )}
         </div>
-    );
+    )
 }
