@@ -18,6 +18,7 @@ export async function GET(request: Request) {
         const html = await response.text();
         const $ = cheerio.load(html);
         let addedCount = 0;
+        const scrapedUrls = [];
 
         const gameCards = $('.products-col-inner').toArray();
 
@@ -27,6 +28,8 @@ export async function GET(request: Request) {
             const imageUrl = $(card).find('img').attr('data-img-src') || $(card).find('img').attr('src') || '';
 
             if (title && gameUrl && !gameUrl.includes('javascript')) {
+                scrapedUrls.push(gameUrl);
+
                 await prisma.offer.upsert({
                     where: {url: gameUrl},
                     update: {
@@ -47,6 +50,15 @@ export async function GET(request: Request) {
                 addedCount++;
             }
         }
+
+        await prisma.offer.updateMany({
+            where: {
+                platform: 'IndieGala',
+                isActive: true,
+                url: {notIn: scrapedUrls}
+            },
+            data: {isActive: false}
+        });
 
         return NextResponse.json({success: true, gamesProcessed: addedCount});
     } catch (error) {

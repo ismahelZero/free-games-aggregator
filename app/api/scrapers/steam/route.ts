@@ -19,6 +19,7 @@ export async function GET(request: Request) {
         const html = await response.text();
         const $ = cheerio.load(html);
         let addedCount = 0;
+        const scrapedUrls = [];
 
         const gameRows = $('#search_resultsRows a.search_result_row').toArray();
 
@@ -45,6 +46,7 @@ export async function GET(request: Request) {
             }
 
             if (title && gameUrl) {
+                scrapedUrls.push(gameUrl)
                 await prisma.offer.upsert({
                     where: {url: gameUrl},
                     update: {
@@ -66,6 +68,15 @@ export async function GET(request: Request) {
                 addedCount++;
             }
         }
+
+        await prisma.offer.updateMany({
+            where: {
+                platform: 'Steam',
+                isActive: true,
+                url: {notIn: scrapedUrls}
+            },
+            data: {isActive: false}
+        })
 
         return NextResponse.json({success: true, gamesProcessed: addedCount});
     } catch (error) {
