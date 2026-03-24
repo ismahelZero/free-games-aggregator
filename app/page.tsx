@@ -15,6 +15,9 @@ export default async function Home() {
         '@context': 'https://schema.org',
         '@type': 'ItemList',
         name: 'Active Free Games Loot',
+        description: 'A curated list of the best free-to-play first-person shooters.',
+        url: 'https://free.myfps.app',
+        numberOfItems: 50,
         itemListElement: activeGames.map((game, index) => ({
             '@type': 'ListItem',
             position: index + 1,
